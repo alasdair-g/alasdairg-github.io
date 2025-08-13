@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Countdown to 4.30pm</title>
+  <link href="https://fonts.googleapis.com/css2?family=Castoro:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#fff5a6;
+      --brand:#ffe14c;
+      --fg:#2c2c2c;
+      --muted:#2c2c2c;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      background: var(--bg);
+      color:var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+      position: relative;
+      overflow: hidden;
+    }
+    .wrap{
+      position: relative;
+      z-index:1;
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:4rem 2rem;
+    }
+    h1{
+      font-family: 'Castoro', serif;
+      font-size: clamp(3rem, 5vw + 1rem, 6rem);
+      margin:0 0 1rem 0;
+      letter-spacing:0.01em;
+      color: var(--fg);
+    }
+    .sub{
+      color:var(--muted);
+      font-size: clamp(1rem, 1vw + 0.8rem, 1.5rem);
+      margin-bottom:2rem;
+    }
+    .timer{
+      display:flex;
+      gap:1rem;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .box{
+      min-width:9rem;
+      background: var(--brand);
+      border-radius:1rem;
+      padding:1.25rem 1rem;
+      box-shadow:0 0.5rem 2rem rgba(0,0,0,0.1) inset, 0 0 0 1px rgba(0,0,0,0.06);
+    }
+    .num{
+      font-variant-numeric: tabular-nums;
+      font-weight:800;
+      font-size: clamp(2.5rem, 6vw, 6rem);
+      line-height:1;
+      color: var(--fg);
+    }
+    .label{
+      display:block;
+      margin-top:0.5rem;
+      color:var(--fg);
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+      font-size:0.85rem;
+    }
+    .launch{
+      display:none;
+    }
+    .launch h2{
+      font-family: 'Castoro', serif;
+      font-size: clamp(3rem, 5vw + 1rem, 6rem);
+      color: var(--brand);
+      margin:0 0 1rem 0;
+    }
+    .launch p{
+      font-size: clamp(1.25rem, 1vw + 1rem, 2rem);
+      color: var(--fg);
+      margin:0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main>
+      <h1>New daily auction time!</h1>
+      <p class="sub">Countdown to 4.30pm – new start time launches today.</p>
+      <div id="timer" class="timer" aria-live="polite" aria-atomic="true">
+        <div class="box"><div class="num" id="d">00</div><span class="label">days</span></div>
+        <div class="box"><div class="num" id="h">00</div><span class="label">hours</span></div>
+        <div class="box"><div class="num" id="m">00</div><span class="label">minutes</span></div>
+        <div class="box"><div class="num" id="s">00</div><span class="label">seconds</span></div>
+      </div>
+      <div id="launch" class="launch">
+        <h2>Our new daily auction time is live!</h2>
+        <p>The daily auction now opens at 4.30pm</p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function getTargetFromParam(){
+      const url = new URL(window.location.href);
+      const p = url.searchParams.get('target');
+      if(!p) return null;
+      if(/Z$/.test(p)){
+        return new Date(p);
+      }
+      return new Date(p);
+    }
+    function getDefaultTarget(){
+      const now = new Date();
+      const t = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 16, 30, 0, 0);
+      if(now.getTime() > t.getTime()){
+        t.setDate(t.getDate()+1);
+      }
+      return t;
+    }
+    const target = getTargetFromParam() || getDefaultTarget();
+    const dEl = document.getElementById('d');
+    const hEl = document.getElementById('h');
+    const mEl = document.getElementById('m');
+    const sEl = document.getElementById('s');
+    const timerEl = document.getElementById('timer');
+    const launchEl = document.getElementById('launch');
+    const heading = document.querySelector('h1');
+    const sub = document.querySelector('.sub');
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function tick(){
+      const now = new Date();
+      const diff = target - now;
+      if(diff <= 0){
+        timerEl.style.display = 'none';
+        heading.style.display = 'none';
+        sub.style.display = 'none';
+        launchEl.style.display = 'block';
+        return;
+      }
+      const sec = Math.floor(diff/1000);
+      const days = Math.floor(sec / 86400);
+      const hours = Math.floor((sec % 86400) / 3600);
+      const mins = Math.floor((sec % 3600) / 60);
+      const secs = sec % 60;
+      dEl.textContent = pad(days);
+      hEl.textContent = pad(hours);
+      mEl.textContent = pad(mins);
+      sEl.textContent = pad(secs);
+    }
+    tick();
+    setInterval(tick, 250);
+  </script>
+</body>
+</html>
